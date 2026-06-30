@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaltChain - Transparansi Distribusi Garam dari Petani hingga Industri</title>
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Premium Style -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Mobile Header Bar -->
+  <div class="mobile-header">
+    <button class="menu-toggle-btn" onclick="toggleSidebar()" title="Toggle Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="mobile-logo">
+      <i class="fa-solid fa-cubes-stacked text-accent"></i>
+      <span>SaltChain</span>
+    </div>
+    <div class="mobile-status-badge">
+      <span class="status-indicator active" style="width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+    </div>
+  </div>
+
+  <!-- Sidebar Overlay for Mobile sliding -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Persona Switcher Ribbon (Horizontally Scrollable on Mobile) -->
+  <div class="persona-ribbon">
+    <div class="ribbon-title">
+      <i class="fa-solid fa-user-gear text-accent"></i>
+      <span>Quick Switch Persona:</span>
+    </div>
+    <div class="persona-buttons">
+      <button class="btn-persona" onclick="quickLogin('petani1@saltchain.com', 'petani123')">
+        <span class="role-badge petani">Petani</span> Pak Budi
+      </button>
+      <button class="btn-persona" onclick="quickLogin('petani2@saltchain.com', 'petani123')">
+        <span class="role-badge petani">Petani</span> Bu Sri
+      </button>
+      <button class="btn-persona" onclick="quickLogin('pengepul@saltchain.com', 'pengepul123')">
+        <span class="role-badge pengepul">Pengepul</span> CV Selaras
+      </button>
+      <button class="btn-persona" onclick="quickLogin('pabrik@saltchain.com', 'pabrik123')">
+        <span class="role-badge pabrik">Pabrik</span> PT Garam Ind.
+      </button>
+      <button class="btn-persona" onclick="quickLogin('kurir@saltchain.com', 'kurir123')">
+        <span class="role-badge kurir">Kurir</span> Agus Logistik
+      </button>
+      <button class="btn-persona" onclick="quickLogin('admin@saltchain.com', 'admin123')">
+        <span class="role-badge admin">Admin</span> Admin
+      </button>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation (Responsive Left Slider) -->
+    <aside class="sidebar">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <i class="fa-solid fa-cubes-stacked"></i>
+        </div>
+        <div class="logo-text">
+          <h1>SaltChain</h1>
+          <p>Blockchain Supply Chain</p>
+        </div>
+      </div>
+      
+      <div class="user-status-card" id="userStatusCard">
+        <div class="avatar">
+          <i class="fa-solid fa-user-astronaut"></i>
+        </div>
+        <div class="user-info">
+          <h4 id="sidebarUserNama">Belum Login</h4>
+          <span id="sidebarUserRole" class="role-badge guest">Guest</span>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Logout" id="logoutBtn" style="display: none;">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active" id="navOverview" onclick="switchTab('overview')">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" id="navProducts" onclick="switchTab('products')">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span>Daftar Garam</span>
+        </a>
+        <a href="#" class="nav-item" id="navFarmerPanel" onclick="switchTab('farmer-panel')" style="display: none;">
+          <i class="fa-solid fa-tractor"></i>
+          <span>Kelola Produk (Petani)</span>
+        </a>
+        <a href="#" class="nav-item" id="navBuyerPanel" onclick="switchTab('buyer-panel')" style="display: none;">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Beli Garam (Pengepul/Pabrik)</span>
+        </a>
+        <a href="#" class="nav-item" id="navCourierPanel" onclick="switchTab('courier-panel')" style="display: none;">
+          <i class="fa-solid fa-truck-fast"></i>
+          <span>Logistik (Kurir)</span>
+        </a>
+        <a href="#" class="nav-item" id="navLedger" onclick="switchTab('ledger')">
+          <i class="fa-solid fa-network-wired"></i>
+          <span>Ledger Blockchain</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>"Transparansi Distribusi Garam dari Petani hingga Industri"</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <header class="main-header">
+        <div class="header-left">
+          <h2 id="currentTabTitle">Dashboard Ringkasan</h2>
+          <p id="currentTabSubtitle">Gambaran umum jaringan rantai pasok garam transparan.</p>
+        </div>
+        <div class="header-right">
+          <div class="blockchain-status" id="generalBlockchainStatus">
+            <span class="status-indicator active"></span>
+            <span class="status-label">Ledger: Aman & Valid</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="tab-content">
+
+        <!-- 1. OVERVIEW TAB -->
+        <section id="tab-overview" class="active">
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon bg-blue-glow">
+                <i class="fa-solid fa-warehouse"></i>
+              </div>
+              <div class="stat-info">
+                <h3>Total Produk</h3>
+                <p id="statTotalProducts">0 Item</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-green-glow">
+                <i class="fa-solid fa-receipt"></i>
+              </div>
+              <div class="stat-info">
+                <h3>Transaksi Aktif</h3>
+                <p id="statTotalOrders">0 Transaksi</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-purple-glow">
+                <i class="fa-solid fa-link"></i>
+              </div>
+              <div class="stat-info">
+                <h3>Blok Blockchain</h3>
+                <p id="statTotalBlocks">0 Blok</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-gold-glow">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div class="stat-info">
+                <h3>Status Rantai</h3>
+                <p id="statLedgerStatus">Terverifikasi</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Login Warning Callout -->
+          <div class="glass-card login-callout" id="guestCallout">
+            <div class="callout-icon">
+              <i class="fa-solid fa-circle-info text-accent pulse"></i>
+            </div>
+            <div class="callout-text">
+              <h3>Demo Interaktif SaltChain</h3>
+              <p>Gunakan <strong>Quick Switch Persona</strong> di bagian atas layar untuk mensimulasikan peran Petani, Pengepul, Pabrik, atau Kurir dalam supply chain secara instan!</p>
+            </div>
+          </div>
+
+          <!-- Dynamic Activities & Summary -->
+          <div class="content-grid">
+            <div class="glass-card flex-2">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-route text-primary"></i> Aliran Distribusi Garam</h3>
+              </div>
+              <div class="flow-diagram-container">
+                <div class="flow-step">
+                  <div class="step-icon petani"><i class="fa-solid fa-tractor"></i></div>
+                  <h4>Petani</h4>
+                  <p>Membuat & Mencatat Produk Garam</p>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step">
+                  <div class="step-icon pengepul"><i class="fa-solid fa-warehouse"></i></div>
+                  <h4>Pengepul / Pabrik</h4>
+                  <p>Memesan & Membeli Salt secara Transparan</p>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step">
+                  <div class="step-icon kurir"><i class="fa-solid fa-truck-fast"></i></div>
+                  <h4>Kurir</h4>
+                  <p>Mengirim & Mengubah Status Logistik</p>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step">
+                  <div class="step-icon secure"><i class="fa-solid fa-cubes"></i></div>
+                  <h4>Ledger Block</h4>
+                  <p>Kriptografi SHA-256 Mengunci Rantai Logistik</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card flex-1">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-cubes text-accent"></i> Blok Ledger Terakhir</h3>
+              </div>
+              <div class="mini-block-list" id="miniBlockList">
+                <div class="text-center text-muted py-4">Memuat data block...</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. LOGIN TAB / FALLBACK -->
+        <section id="tab-auth" style="display: none;">
+          <div class="auth-box glass-card">
+            <div class="auth-tabs">
+              <button class="auth-tab-btn active" onclick="switchAuthForm('login')">Masuk</button>
+              <button class="auth-tab-btn" onclick="switchAuthForm('register')">Daftar Akun Baru</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form" onsubmit="handleLoginSubmit(event)">
+              <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="nama@email.com" required>
+              </div>
+              <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Masuk Aplikasi</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" onsubmit="handleRegisterSubmit(event)" style="display: none;">
+              <div class="form-group">
+                <label for="regNama">Nama Lengkap</label>
+                <input type="text" id="regNama" placeholder="Nama Anda" required>
+              </div>
+              <div class="form-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="nama@email.com" required>
+              </div>
+              <div class="form-group">
+                <label for="regPassword">Password</label>
+                <input type="password" id="regPassword" placeholder="Min. 6 Karakter" required>
+              </div>
+              <div class="form-group">
+                <label for="regPeran">Peran Kerja</label>
+                <select id="regPeran" required>
+                  <option value="Petani">Petani Garam (Farmer)</option>
+                  <option value="Pengepul">Pengepul Garam (Collector)</option>
+                  <option value="Pabrik">Pabrik Industri (Factory)</option>
+                  <option value="Kurir">Kurir / Logistik (Courier)</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-accent btn-block">Daftar Akun</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- 3. PUBLIC PRODUCTS LIST TAB -->
+        <section id="tab-products" style="display: none;">
+          <div class="glass-card mb-4">
+            <div class="card-header justify-between">
+              <h3>Daftar Garam Nasional</h3>
+              <span class="badge" id="productCount">0 Garam Terdaftar</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Garam / Produk</th>
+                    <th>Kategori</th>
+                    <th>Pemilik / Petani</th>
+                    <th>Stok Tersedia</th>
+                    <th>Harga per Kg</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="publicProductsTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Memuat data produk...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. FARMER PANEL -->
+        <section id="tab-farmer-panel" style="display: none;">
+          <div class="content-grid">
+            
+            <!-- Product CRUD Form -->
+            <div class="glass-card flex-1">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-plus text-accent"></i> Tambah / Edit Garam</h3>
+              </div>
+              <form id="farmerProductForm" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="formProductId">
+                <div class="form-group">
+                  <label for="formProductName">Nama Garam / Produk</label>
+                  <input type="text" id="formProductName" placeholder="Garam Kasar Madura Premium" required>
+                </div>
+                <div class="form-group">
+                  <label for="formProductCategory">Kategori</label>
+                  <select id="formProductCategory" required>
+                    <option value="Garam Konsumsi">Garam Konsumsi</option>
+                    <option value="Garam Industri">Garam Industri</option>
+                    <option value="Garam Dapur">Garam Dapur</option>
+                    <option value="Garam Pakan Ternak">Garam Pakan Ternak</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="formProductStock">Stok Terdaftar (Kg)</label>
+                  <input type="number" id="formProductStock" min="0" placeholder="500" required>
+                </div>
+                <div class="form-group">
+                  <label for="formProductPrice">Harga per Kg (Rp)</label>
+                  <input type="number" id="formProductPrice" min="0" placeholder="12000" required>
+                </div>
+                <div class="flex gap-2">
+                  <button type="submit" class="btn btn-accent flex-1" id="productFormSubmitBtn">Simpan Produk</button>
+                  <button type="button" class="btn btn-muted" id="cancelEditProductBtn" onclick="resetProductForm()" style="display: none;">Batal</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Farmer's Own Products List -->
+            <div class="glass-card flex-2">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-tractor text-primary"></i> Inventori Garam Saya</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Nama Produk</th>
+                      <th>Kategori</th>
+                      <th>Stok</th>
+                      <th>Harga (Rp)</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="farmerProductsTableBody">
+                    <tr>
+                      <td colspan="5" class="text-center text-muted py-4">Memuat inventori...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 5. BUYER PANEL (Storefront Checkout & Purchases) -->
+        <section id="tab-buyer-panel" style="display: none;">
+          <!-- Cart & Shop Grid -->
+          <div class="content-grid">
+            
+            <!-- Storefront Shop -->
+            <div class="glass-card flex-2">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-store text-primary"></i> Belanja Garam Petani</h3>
+              </div>
+              <div class="store-grid" id="storefrontGrid">
+                <!-- Dynamically loaded products with Buy button -->
+                <div class="text-center text-muted py-4 w-full">Memuat produk pasar...</div>
+              </div>
+            </div>
+
+            <!-- Shopping Cart -->
+            <div class="glass-card flex-1">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-basket-shopping text-accent"></i> Keranjang Pembelian</h3>
+              </div>
+              <div id="cartContent">
+                <div class="cart-items-list" id="cartItemsList">
+                  <div class="text-center text-muted py-4">Keranjang belanja Anda kosong.</div>
+                </div>
+                <hr class="card-divider">
+                <div class="cart-summary">
+                  <div class="flex justify-between mb-2">
+                    <span>Total Pembayaran:</span>
+                    <strong id="cartTotalPrice">Rp 0</strong>
+                  </div>
+                  <button class="btn btn-accent btn-block" onclick="checkoutCart()" id="btnCheckout" disabled>
+                    Konfirmasi Pembelian
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buyer's Order History -->
+          <div class="glass-card mt-4">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-receipt text-primary"></i> Riwayat Pembelian Anda</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Pesanan</th>
+                    <th>Tanggal Pesan</th>
+                    <th>Detail Produk</th>
+                    <th>Total Harga</th>
+                    <th>Status Pesanan</th>
+                    <th>Lacak Pengiriman</th>
+                  </tr>
+                </thead>
+                <tbody id="buyerOrdersTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Memuat riwayat transaksi...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. COURIER LOGISTICS PANEL -->
+        <section id="tab-courier-panel" style="display: none;">
+          <div class="glass-card mb-4">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-truck-ramp-box text-accent"></i> Kelola Order Distribusi Garam</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Pesanan</th>
+                    <th>Pembeli</th>
+                    <th>Tanggal</th>
+                    <th>Total Harga</th>
+                    <th>Status Pesanan</th>
+                    <th>Informasi Pengiriman (Resi / Kurir)</th>
+                    <th>Aksi Logistik</th>
+                  </tr>
+                </thead>
+                <tbody id="courierOrdersTableBody">
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Memuat data logistik...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. LEDGER EXPLORER TAB -->
+        <section id="tab-ledger" style="display: none;">
+          <div class="glass-card mb-4">
+            <div class="card-header justify-between flex-wrap gap-2">
+              <div>
+                <h3><i class="fa-solid fa-shield-halved text-success"></i> Audit Konsol & Blockchain Ledger Explorer</h3>
+                <p class="text-muted text-sm mt-1">Audit forensik terhadap integritas rantai pasok garam (SHA-256 Hash Chain).</p>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-success" onclick="loadLedgerBlocks()">
+                  <i class="fa-solid fa-sync"></i> Refresh Ledger
+                </button>
+              </div>
+            </div>
+            
+            <div class="blockchain-verifier-box" id="ledgerVerifierBox">
+              <div class="verifier-icon">
+                <i class="fa-solid fa-shield-check text-success" id="verifierStatusIcon"></i>
+              </div>
+              <div class="verifier-details">
+                <h4 id="verifierStatusTitle">Audit Integritas Rantai Sukses</h4>
+                <p id="verifierStatusText">Seluruh blok rantai pasok logistik terverifikasi aman menggunakan algoritma SHA-256. Tidak ada perubahan liar atau data palsu yang disisipkan.</p>
+              </div>
+            </div>
+
+            <!-- Ledger Blocks Chain Visualization -->
+            <div class="blockchain-visual-chain" id="blockchainVisualChain">
+              <!-- Dynamically populated large blockchain blocks -->
+              <div class="text-center text-muted py-4">Memuat rantai blockchain...</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Notification Banner -->
+  <div id="toastNotification" class="toast">
+    <i class="fa-solid fa-circle-check toast-icon"></i>
+    <span class="toast-message">Notifikasi Berhasil!</span>
+  </div>
+
+  <!-- Detailed Shipment & Ledger Tracker Modal -->
+  <div class="modal" id="trackingModal">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-route text-accent"></i> Tracker Rantai Distribusi</h3>
+        <button class="modal-close" onclick="closeModal('trackingModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="trackingModalMetadata" class="mb-4">
+          <!-- Metadata resi, status, etc -->
+        </div>
+
+        <div class="blockchain-audit-panel mb-4">
+          <div class="flex justify-between items-center">
+            <h4><i class="fa-solid fa-dna text-primary"></i> Kriptografi Audit Trace</h4>
+            <button class="btn btn-xs btn-primary" id="btnAuditTrace" onclick="runChainAudit()">
+              <i class="fa-solid fa-fingerprint"></i> Verifikasi Rantai SHA-256
+            </button>
+          </div>
+          <div class="audit-result-mini mt-2" id="auditResultMini" style="display: none;">
+            <!-- Auditing results loader -->
+          </div>
+        </div>
+
+        <div class="timeline-blockchain" id="trackingModalTimeline">
+          <!-- Blockchain block timeline list of status history -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Code -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  ID_User  String    @id @default(uuid())
+  Nama     String
+  Email    String    @unique
+  Password String
+  Peran    String    // Petani, Pengepul, Pabrik, Kurir, Admin
+  Produk   Produk[]
+  Pesanan  Pesanan[]
+}
+
+model Produk {
+  ID_Produk       String           @id @default(uuid())
+  ID_User_Petani  String
+  Nama_Produk     String
+  Kategori        String
+  Stok            Int
+  Harga           Float
+  Petani          User             @relation(fields: [ID_User_Petani], references: [ID_User], onDelete: Cascade)
+  Detail_Pesanan  Detail_Pesanan[]
+}
+
+model Pesanan {
+  ID_Pesanan      String           @id @default(uuid())
+  ID_User_Pembeli String
+  Tanggal_Pesan   DateTime         @default(now())
+  Status_Pesanan  String           // Menunggu, Diproses, Dikirim, Selesai
+  Total_Harga     Float
+  Pembeli         User             @relation(fields: [ID_User_Pembeli], references: [ID_User], onDelete: Cascade)
+  Detail_Pesanan  Detail_Pesanan[]
+  Pengiriman      Pengiriman[]
+}
+
+model Detail_Pesanan {
+  ID_Detail   String   @id @default(uuid())
+  ID_Pesanan  String
+  ID_Produk   String
+  Jumlah_Beli Int
+  Subtotal    Float
+  Pesanan     Pesanan  @relation(fields: [ID_Pesanan], references: [ID_Pesanan], onDelete: Cascade)
+  Produk      Produk   @relation(fields: [ID_Produk], references: [ID_Produk], onDelete: Cascade)
+}
+
+model Pengiriman {
+  ID_Pengiriman String            @id @default(uuid())
+  ID_Pesanan    String
+  Kurir         String
+  Resi          String            @unique
+  Estimasi_Tiba DateTime
+  Status_Kirim  String            // Diproses, Dikirim, Sampai
+  Pesanan       Pesanan           @relation(fields: [ID_Pesanan], references: [ID_Pesanan], onDelete: Cascade)
+  BlockchainBlock BlockchainBlock[]
+}
+
+model BlockchainBlock {
+  ID_Block      String      @id @default(uuid())
+  Index         Int
+  Tanggal       DateTime    @default(now())
+  ID_Pengiriman String
+  Data          String      // JSON string representation of custody and shipping status details
+  Prev_Hash     String
+  Hash          String
+  Pengiriman    Pengiriman  @relation(fields: [ID_Pengiriman], references: [ID_Pengiriman], onDelete: Cascade)
+}
