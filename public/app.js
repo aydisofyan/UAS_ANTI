@@ -29,7 +29,7 @@ function setOfflineState(state) {
       `;
       document.body.prepend(banner);
     }
-    
+
     // Start reconnection poller
     if (!reconnectInterval) {
       reconnectInterval = setInterval(async () => {
@@ -53,28 +53,22 @@ function setOfflineState(state) {
       clearInterval(reconnectInterval);
       reconnectInterval = null;
     }
-    
+
     // Reload active tab data to refresh views
     switchTab(activeTab);
   }
 }
 
 // Global fetch Interception for resilient connections
-const originalFetch = window.fetch;
-window.fetch = async function (url, options = {}) {
-  try {
-    const res = await originalFetch(url, options);
-    // If standard fetch succeeds, clear offline states
-    setOfflineState(false);
-    return res;
-  } catch (err) {
-    // Catch fetch connection loss errors
-    if (err instanceof TypeError || err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch')) {
-      setOfflineState(true);
-    }
-    throw err;
+const token = localStorage.getItem('token'); // atau tempat kamu menyimpan token JWT setelah login
+
+fetch('https://uas-anti.vercel.app/api/products', {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
   }
-};
+})
 
 // State management
 let authToken = localStorage.getItem('saltchain_token') || null;
@@ -171,15 +165,15 @@ async function quickLogin(email, password) {
       body: JSON.stringify({ Email: email, Password: password }),
     });
     const result = await res.json();
-    
+
     if (result.success) {
       authToken = result.token;
       localStorage.setItem('saltchain_token', authToken);
       currentUser = result.user;
-      
+
       updateUIForRole(currentUser.Peran);
       showToast(`Berhasil masuk sebagai ${currentUser.Nama} (${currentUser.Peran})`, 'success');
-      
+
       // Auto switch tabs depending on role for smooth UX
       if (currentUser.Peran === 'Petani') {
         switchTab('farmer-panel');
@@ -219,7 +213,7 @@ async function handleRegisterSubmit(e) {
       body: JSON.stringify({ Nama, Email, Password, Peran }),
     });
     const result = await res.json();
-    
+
     if (result.success) {
       showToast('Pendaftaran akun berhasil! Silakan masuk.', 'success');
       // Auto fill and transition
@@ -417,7 +411,7 @@ async function loadOverviewData() {
         try {
           const parsed = JSON.parse(block.Data);
           eventLabel = parsed.eventName.replace('_', ' ');
-        } catch(e) {}
+        } catch (e) { }
 
         const isTampered = block.Data.includes('"TAMPERED":true');
 
@@ -473,7 +467,7 @@ async function loadOverviewData() {
 async function loadPublicProducts() {
   const tableBody = document.getElementById('publicProductsTableBody');
   const countSpan = document.getElementById('productCount');
-  
+
   try {
     const res = await fetch(`${API_BASE}/api/products`, { headers: getHeaders() });
     const result = await res.json();
@@ -497,10 +491,10 @@ async function loadPublicProducts() {
           <td>${p.Stok} Kg</td>
           <td>Rp ${p.Harga.toLocaleString('id-ID')}</td>
           <td>
-            ${(currentUser && (currentUser.Peran === 'Pengepul' || currentUser.Peran === 'Pabrik')) 
-              ? `<button class="btn btn-xs btn-accent" onclick="addToCart('${p.ID_Produk}')"><i class="fa-solid fa-cart-plus"></i> Tambah</button>`
-              : `<span class="text-muted text-xs">Login Pembeli untuk membeli</span>`
-            }
+            ${(currentUser && (currentUser.Peran === 'Pengepul' || currentUser.Peran === 'Pabrik'))
+            ? `<button class="btn btn-xs btn-accent" onclick="addToCart('${p.ID_Produk}')"><i class="fa-solid fa-cart-plus"></i> Tambah</button>`
+            : `<span class="text-muted text-xs">Login Pembeli untuk membeli</span>`
+          }
           </td>
         `;
         tableBody.appendChild(tr);
@@ -551,7 +545,7 @@ async function loadFarmerProducts() {
 
 async function handleProductSubmit(e) {
   e.preventDefault();
-  
+
   const id = document.getElementById('formProductId').value;
   const Nama_Produk = document.getElementById('formProductName').value;
   const Kategori = document.getElementById('formProductCategory').value;
@@ -559,7 +553,7 @@ async function handleProductSubmit(e) {
   const Harga = parseFloat(document.getElementById('formProductPrice').value);
 
   const payload = { Nama_Produk, Kategori, Stok, Harga };
-  
+
   let url = `${API_BASE}/api/products`;
   let method = 'POST';
 
@@ -594,7 +588,7 @@ function editProduct(id, nama, kategori, stok, harga) {
   document.getElementById('formProductCategory').value = kategori;
   document.getElementById('formProductStock').value = stok;
   document.getElementById('formProductPrice').value = harga;
-  
+
   document.getElementById('productFormSubmitBtn').innerText = 'Perbarui Produk';
   document.getElementById('cancelEditProductBtn').style.display = 'inline-flex';
 }
@@ -602,7 +596,7 @@ function editProduct(id, nama, kategori, stok, harga) {
 function resetProductForm() {
   document.getElementById('formProductId').value = '';
   document.getElementById('farmerProductForm').reset();
-  
+
   document.getElementById('productFormSubmitBtn').innerText = 'Simpan Produk';
   document.getElementById('cancelEditProductBtn').style.display = 'none';
 }
@@ -686,9 +680,9 @@ async function loadBuyerDashboard() {
       tableBody.innerHTML = '';
       result.data.forEach(order => {
         const orderDate = new Date(order.Tanggal_Pesan).toLocaleDateString('id-ID');
-        
+
         // Construct string of products
-        const productsSummary = order.Detail_Pesanan.map(det => 
+        const productsSummary = order.Detail_Pesanan.map(det =>
           `${det.Produk.Nama_Produk} (${det.Jumlah_Beli} Kg)`
         ).join('<br>');
 
@@ -708,10 +702,10 @@ async function loadBuyerDashboard() {
             </span>
           </td>
           <td>
-            ${isShipped 
-              ? `<button class="btn btn-xs btn-primary" onclick="openTrackingModal('${shippingId}')"><i class="fa-solid fa-route"></i> Lacak (${resi.substring(0, 10)}...)</button>`
-              : `<span class="text-muted text-xs">Menunggu Logistik</span>`
-            }
+            ${isShipped
+            ? `<button class="btn btn-xs btn-primary" onclick="openTrackingModal('${shippingId}')"><i class="fa-solid fa-route"></i> Lacak (${resi.substring(0, 10)}...)</button>`
+            : `<span class="text-muted text-xs">Menunggu Logistik</span>`
+          }
           </td>
         `;
         tableBody.appendChild(tr);
@@ -835,7 +829,7 @@ async function loadCourierDashboard() {
         const shipping = isShipped ? order.Pengiriman[0] : null;
 
         // Products details string
-        const productsSummary = order.Detail_Pesanan.map(det => 
+        const productsSummary = order.Detail_Pesanan.map(det =>
           `${det.Produk.Nama_Produk} (${det.Jumlah_Beli} Kg)`
         ).join(', ');
 
@@ -939,7 +933,7 @@ async function loadLedgerBlocks() {
 
     if (result.success) {
       const blocks = result.data;
-      
+
       if (blocks.length === 0) {
         chainContainer.innerHTML = `<div class="text-center text-muted py-4">Belum ada blok yang tercatat di jaringan. Jalankan pembelian garam dan pengiriman kurir untuk memicu blok baru!</div>`;
         verifierBox.style.display = 'none';
@@ -982,13 +976,13 @@ async function loadLedgerBlocks() {
         let parsedData = { eventName: 'UNKNOWN', payload: {} };
         try {
           parsedData = JSON.parse(block.Data);
-        } catch (e) {}
+        } catch (e) { }
 
         const isBlockTampered = block.Data.includes('"TAMPERED":true');
 
         const blockDiv = document.createElement('div');
         blockDiv.className = 'ledger-block-node';
-        
+
         // Build payload key-values
         let payloadItemsHtml = '';
         for (const [key, val] of Object.entries(parsedData.payload)) {
@@ -1000,7 +994,7 @@ async function loadLedgerBlocks() {
           if (typeof val === 'object') {
             displayVal = JSON.stringify(val);
           }
-          
+
           payloadItemsHtml += `
             <div class="payload-item">
               <span class="payload-label">${key}</span>
@@ -1042,10 +1036,10 @@ async function loadLedgerBlocks() {
             </div>
 
             <div class="block-actions">
-              ${!isBlockTampered 
-                ? `<button class="btn btn-xs btn-danger" onclick="triggerTamper('${block.ID_Block}', ${block.Index})"><i class="fa-solid fa-bolt"></i> Simulasikan Manipulasi (Tamper)</button>`
-                : `<span class="text-danger text-xs font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Blok Telah Dimanipulasi!</span>`
-              }
+              ${!isBlockTampered
+            ? `<button class="btn btn-xs btn-danger" onclick="triggerTamper('${block.ID_Block}', ${block.Index})"><i class="fa-solid fa-bolt"></i> Simulasikan Manipulasi (Tamper)</button>`
+            : `<span class="text-danger text-xs font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Blok Telah Dimanipulasi!</span>`
+          }
             </div>
           </div>
         `;
@@ -1075,7 +1069,7 @@ async function triggerTamper(blockId, index) {
 
     if (result.success) {
       showToast(`DATABASE DIRETAK! Blok #${index} telah dimanipulasi secara ilegal di DB SQLite.`, 'danger');
-      
+
       // Auto switch tabs to visual explorer to show the damage
       switchTab('ledger');
     } else {
@@ -1110,7 +1104,7 @@ async function openTrackingModal(shippingId) {
 
     if (currentShipping) {
       const estimasiStr = new Date(currentShipping.Estimasi_Tiba).toLocaleDateString('id-ID');
-      
+
       metadataDiv.innerHTML = `
         <div class="glass-card" style="padding: 16px; margin-bottom: 0;">
           <div class="flex justify-between flex-wrap gap-2">
@@ -1140,7 +1134,7 @@ async function openTrackingModal(shippingId) {
         let parsed = { eventName: 'UNKNOWN', payload: {} };
         try {
           parsed = JSON.parse(block.Data);
-        } catch (e) {}
+        } catch (e) { }
 
         const isTampered = block.Data.includes('"TAMPERED":true');
         const node = document.createElement('div');
