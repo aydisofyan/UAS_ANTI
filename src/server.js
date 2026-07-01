@@ -89,40 +89,45 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-const server = app.listen(PORT, () => {
-  console.log('========================================================');
-  console.log(` 🧂 SaltChain Server is running on port ${PORT}`);
-  console.log(` 🏷️  Slogan: "Transparansi Distribusi Garam dari Petani hingga Industri"`);
-  console.log(` 🌐 Frontend Dashboard: http://localhost:${PORT}`);
-  console.log('========================================================');
-});
-
-// Graceful Shutdown - Closes connections safely when closing/rebooting app
-const handleShutdown = async (signal) => {
-  console.log(`\n🛑 Received ${signal}. Graceful shutdown initiated...`);
-  
-  // Close the HTTP Server
-  server.close(async () => {
-    console.log('🔌 Server HTTP dihentikan.');
-    
-    // Disconnect Prisma client safely
-    try {
-      await prisma.$disconnect();
-      console.log('📦 Koneksi database Prisma SQLite diputus dengan aman.');
-    } catch (dbErr) {
-      console.error('Gagal memutus koneksi database:', dbErr);
-    }
-    
-    console.log('👋 SaltChain dihentikan sepenuhnya dengan selamat.');
-    process.exit(0);
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log('========================================================');
+    console.log(` 🧂 SaltChain Server is running on port ${PORT}`);
+    console.log(` 🏷️  Slogan: "Transparansi Distribusi Garam dari Petani hingga Industri"`);
+    console.log(` 🌐 Frontend Dashboard: http://localhost:${PORT}`);
+    console.log('========================================================');
   });
 
-  // Force close after 10 seconds if graceful shutdown takes too long
-  setTimeout(() => {
-    console.error('⚠️ Graceful shutdown timed out. Forcing process exit.');
-    process.exit(1);
-  }, 10000);
-};
+  // Graceful Shutdown - Closes connections safely when closing/rebooting app
+  const handleShutdown = async (signal) => {
+    console.log(`\n🛑 Received ${signal}. Graceful shutdown initiated...`);
+    
+    // Close the HTTP Server
+    server.close(async () => {
+      console.log('🔌 Server HTTP dihentikan.');
+      
+      // Disconnect Prisma client safely
+      try {
+        await prisma.$disconnect();
+        console.log('📦 Koneksi database Prisma diputus dengan aman.');
+      } catch (dbErr) {
+        console.error('Gagal memutus koneksi database:', dbErr);
+      }
+      
+      console.log('👋 SaltChain dihentikan sepenuhnya dengan selamat.');
+      process.exit(0);
+    });
 
-process.on('SIGINT', () => handleShutdown('SIGINT'));
-process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+    // Force close after 10 seconds if graceful shutdown takes too long
+    setTimeout(() => {
+      console.error('⚠️ Graceful shutdown timed out. Forcing process exit.');
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+}
+
+// Export app for Vercel Serverless environment
+module.exports = app;

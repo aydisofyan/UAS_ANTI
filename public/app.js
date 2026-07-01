@@ -60,15 +60,19 @@ function setOfflineState(state) {
 }
 
 // Global fetch Interception for resilient connections
-const token = localStorage.getItem('token'); // atau tempat kamu menyimpan token JWT setelah login
-
-fetch('https://uas-anti.vercel.app/api/products', {
-  method: 'GET',
-  headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
+const originalFetch = window.fetch;
+window.fetch = async function (...args) {
+  try {
+    const response = await originalFetch(...args);
+    setOfflineState(false);
+    return response;
+  } catch (error) {
+    if (error instanceof TypeError) {
+      setOfflineState(true);
+    }
+    throw error;
   }
-})
+};
 
 // State management
 let authToken = localStorage.getItem('saltchain_token') || null;
