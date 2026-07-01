@@ -11,11 +11,11 @@ const authorize = require('../middleware/rbac');
 
 const router = express.Router();
 
-// All routes here require JWT authentication
-router.use(authenticateJWT);
-
-// Publicly viewable products by any authenticated user (Farmers, Pengepul, Pabrik, Kurir, Admin)
+// Publicly viewable products by any user (Guests included)
 router.get('/', getAllProducts);
+
+// All other routes require JWT authentication
+router.use(authenticateJWT);
 
 // Specific farmer's own products list (Farmer only)
 router.get('/farmer', authorize('Petani'), getProductsByFarmer);

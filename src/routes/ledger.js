@@ -9,11 +9,11 @@ const authenticateJWT = require('../middleware/auth');
 
 const router = express.Router();
 
-// Require authentication to query the ledger
-router.use(authenticateJWT);
-
-// Get complete ledger blockchain history
+// Get complete ledger blockchain history (Public view for transparency)
 router.get('/blocks', getAllBlocks);
+
+// Require authentication for other ledger queries
+router.use(authenticateJWT);
 
 // Get ledger blocks specifically for a single shipment
 router.get('/shipping/:shippingId', getLedgerByShippingId);
