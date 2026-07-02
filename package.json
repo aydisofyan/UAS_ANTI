@@ -7,11 +7,11 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "build": "node node_modules/prisma/build/index.js generate",
-    "prisma:generate": "node node_modules/prisma/build/index.js generate",
-    "prisma:migrate": "node node_modules/prisma/build/index.js migrate dev --name init",
+    "build": "prisma generate",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
     "prisma:seed": "node prisma/seed.js",
-    "prisma:push": "node node_modules/prisma/build/index.js db push"
+    "prisma:push": "prisma db push"
   },
   "keywords": [
     "blockchain",
